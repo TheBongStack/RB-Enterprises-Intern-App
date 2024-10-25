@@ -1,6 +1,10 @@
 import { relations } from "drizzle-orm";
 import {
+  bigint,
+  boolean,
+  date,
   integer,
+  pgEnum,
   pgTable,
   serial,
   timestamp,
@@ -8,18 +12,20 @@ import {
   varchar,
 } from "drizzle-orm/pg-core";
 
+export const ProductTypes = pgEnum("productType", [
+  "Appliances",
+  "Service",
+  "Sales",
+  "IT",
+  "N/A",
+]);
+
 export const UserTable = pgTable("Users", {
-  username: uuid("username")
-    .notNull()
-    .unique()
-    .defaultRandom()
-    .primaryKey()
-    .references(() => UserProfiles.owner, { onDelete: "cascade", onUpdate: "cascade" })
-    .references(() => ProductsRegistered.owner, { onDelete: "cascade", onUpdate: "cascade" }),
+  username: uuid("username").unique().defaultRandom().primaryKey(),
   email: varchar("email").unique().notNull(),
   passwordHash: varchar("passwordHash").notNull(),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("createdAt").defaultNow(),
+  updatedAt: timestamp("updatedAt").defaultNow(),
 });
 
 export const UserRelations = relations(UserTable, ({ one, many }) => ({
@@ -31,10 +37,22 @@ export const UserRelations = relations(UserTable, ({ one, many }) => ({
 }));
 
 export const ProductsRegistered = pgTable("Products", {
-  id: serial("id").primaryKey(),
+  id: serial("id").notNull().primaryKey(),
+  owner: varchar("owner")
+    .notNull()
+    .references(() => UserTable.username, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
   name: varchar("name").notNull(),
-  owner: varchar("owner").notNull(),
+  brand: varchar("brand").default("Generic"),
+  type: ProductTypes("type").default("N/A"),
+  warrantyPeriod: bigint("warrantyPeriod", { mode: "number" }).default(
+    365 * 24 * 60 * 60 * 1000
+  ),
+  warrantyStartDate: date().defaultNow(),
   price: integer("price").default(0),
+  outOfStock: boolean().default(true),
 });
 
 export const ProductRelations = relations(ProductsRegistered, ({ one }) => ({
@@ -45,12 +63,18 @@ export const ProductRelations = relations(ProductsRegistered, ({ one }) => ({
 }));
 
 export const UserProfiles = pgTable("Profiles", {
-  owner: varchar("owner").unique().primaryKey(),
-  first_name: varchar("first_name", { length: 255 }).notNull(),
-  last_name: varchar("last_name", { length: 255 }),
+  owner: varchar("owner")
+    .unique()
+    .primaryKey()
+    .references(() => UserTable.username, {
+      onDelete: "cascade",
+      onUpdate: "cascade",
+    }),
+  firstName: varchar("firstName", { length: 255 }),
+  lastName: varchar("lastName", { length: 255 }),
   theme: varchar("theme").notNull().default("light"),
-  phoneNumber: integer("phNo").default(1000000000),
-  profilePhoto: varchar("pfp"),
+  phoneNumber: integer("phoneNumber").default(1000000000),
+  profilePhoto: varchar("profilePhoto", { length: 255 }),
 });
 
 export const ProfileRelations = relations(UserProfiles, ({ one }) => ({

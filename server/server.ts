@@ -1,27 +1,21 @@
 import express from "express";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
+import authRouter from "./routes/auth";
+import productsRouter from "./routes/products";
 
 const app = express();
 const port = process.env.PORT || 8000;
 
-app.use(
-  morgan("combined", {
-    skip: (_, res) => res.statusCode < 299,
-  })
-);
+app.use([
+  morgan("combined"),
+  express.json(),
+  express.urlencoded({ extended: false }),
+  cookieParser()
+]);
 
-app.get("/", (req, res) => {
-  res.json({ redirect: "/" });
-  res.send();
-});
-
-
-app.post("/products", (req, res) => {
-
-})
-app.get("/products", (req, res) => {
-
-})
+app.use("/auth", authRouter);
+app.use("/products", productsRouter);
 
 app.listen(port, () =>
   console.log("Server has started listening at port : ", port)

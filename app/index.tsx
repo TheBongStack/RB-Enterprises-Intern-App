@@ -2,6 +2,7 @@ import { Link, router } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 
 export default function LandingPage() {
+    
   return (
     <View>
       <View>

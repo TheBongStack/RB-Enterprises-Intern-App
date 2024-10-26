@@ -11,7 +11,6 @@ app.use([
   morgan("combined"),
   express.json(),
   express.urlencoded({ extended: false }),
-  cookieParser()
 ]);
 
 app.use("/auth", authRouter);

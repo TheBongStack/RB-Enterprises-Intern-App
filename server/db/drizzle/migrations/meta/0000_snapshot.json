@@ -1,5 +1,5 @@
 {
-  "id": "944149e6-4395-4d2e-b7cf-4d11a58fa97c",
+  "id": "49770fcb-48ee-4996-b101-6ac1466d5368",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -14,17 +14,46 @@
           "primaryKey": true,
           "notNull": true
         },
+        "owner": {
+          "name": "owner",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "name": {
           "name": "name",
           "type": "varchar",
           "primaryKey": false,
           "notNull": true
         },
-        "owner": {
-          "name": "owner",
+        "brand": {
+          "name": "brand",
           "type": "varchar",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": "'Generic'"
+        },
+        "type": {
+          "name": "type",
+          "type": "productType",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'N/A'"
+        },
+        "warrantyPeriod": {
+          "name": "warrantyPeriod",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false,
+          "default": 31536000000
+        },
+        "warrantyStartDate": {
+          "name": "warrantyStartDate",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
         },
         "price": {
           "name": "price",
@@ -32,10 +61,31 @@
           "primaryKey": false,
           "notNull": false,
           "default": 0
+        },
+        "outOfStock": {
+          "name": "outOfStock",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "Products_owner_Users_username_fk": {
+          "name": "Products_owner_Users_username_fk",
+          "tableFrom": "Products",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "owner"
+          ],
+          "columnsTo": [
+            "username"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -46,18 +96,18 @@
       "columns": {
         "owner": {
           "name": "owner",
-          "type": "varchar",
+          "type": "uuid",
           "primaryKey": true,
           "notNull": true
         },
-        "first_name": {
-          "name": "first_name",
+        "firstName": {
+          "name": "firstName",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
-        "last_name": {
-          "name": "last_name",
+        "lastName": {
+          "name": "lastName",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
@@ -69,22 +119,36 @@
           "notNull": true,
           "default": "'light'"
         },
-        "phNo": {
-          "name": "phNo",
+        "phoneNumber": {
+          "name": "phoneNumber",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
           "default": 1000000000
         },
-        "pfp": {
-          "name": "pfp",
-          "type": "varchar",
+        "profilePhoto": {
+          "name": "profilePhoto",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "Profiles_owner_Users_username_fk": {
+          "name": "Profiles_owner_Users_username_fk",
+          "tableFrom": "Profiles",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "owner"
+          ],
+          "columnsTo": [
+            "username"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
         "Profiles_owner_unique": {
@@ -95,6 +159,58 @@
           ]
         }
       },
+      "checkConstraints": {}
+    },
+    "public.UserSessions": {
+      "name": "UserSessions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "user": {
+          "name": "user",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "lastLogin": {
+          "name": "lastLogin",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "cookie": {
+          "name": "cookie",
+          "type": "varchar(512)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "''"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "UserSessions_user_Users_username_fk": {
+          "name": "UserSessions_user_Users_username_fk",
+          "tableFrom": "UserSessions",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "user"
+          ],
+          "columnsTo": [
+            "username"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "checkConstraints": {}
     },
     "public.Users": {
@@ -120,18 +236,18 @@
           "primaryKey": false,
           "notNull": true
         },
-        "created_at": {
-          "name": "created_at",
+        "createdAt": {
+          "name": "createdAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         },
-        "updated_at": {
-          "name": "updated_at",
+        "updatedAt": {
+          "name": "updatedAt",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
+          "notNull": false,
           "default": "now()"
         }
       },
@@ -157,7 +273,19 @@
       "checkConstraints": {}
     }
   },
-  "enums": {},
+  "enums": {
+    "public.productType": {
+      "name": "productType",
+      "schema": "public",
+      "values": [
+        "Appliances",
+        "Service",
+        "Sales",
+        "IT",
+        "N/A"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "views": {},

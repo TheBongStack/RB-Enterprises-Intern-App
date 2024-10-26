@@ -20,7 +20,11 @@ export default function LoginPage() {
         <TextInput textContentType="username" placeholder="John@example.com" />
         <Text>Password</Text>
         <View>
-          <TextInput secureTextEntry={!showPassword} placeholder="*********" autoComplete="off"/>
+          <TextInput
+            secureTextEntry={!showPassword}
+            placeholder="*********"
+            autoComplete="off"
+          />
           {showPassword ? (
             <FontAwesome.Button
               name="eye"
@@ -43,9 +47,11 @@ export default function LoginPage() {
               return <Button onPress={attemptLogin} title="Log In" />;
             }
             case 1: {
+              setTimeout(() => setVerificationStatus(0), 3000);
               return <Text>Login Succesfull! Welcome</Text>;
             }
             case 2: {
+              setTimeout(() => setVerificationStatus(0), 3000);
               return <Text>Login Failed! Try Again</Text>;
             }
             case 3: {

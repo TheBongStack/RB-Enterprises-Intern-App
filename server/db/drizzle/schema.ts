@@ -30,15 +30,19 @@ export const UserTable = pgTable("Users", {
 
 export const UserRelations = relations(UserTable, ({ one, many }) => ({
   products: many(ProductsRegistered),
-  profiles: one(UserProfiles, {
+  profile: one(UserProfiles, {
     fields: [UserTable.username],
     references: [UserProfiles.owner],
   }),
+  session: one(UserSessions, {
+    fields: [UserTable.username],
+    references: [UserSessions.user]
+  })
 }));
 
 export const ProductsRegistered = pgTable("Products", {
   id: serial("id").notNull().primaryKey(),
-  owner: varchar("owner")
+  owner: uuid("owner")
     .notNull()
     .references(() => UserTable.username, {
       onDelete: "cascade",
@@ -63,7 +67,7 @@ export const ProductRelations = relations(ProductsRegistered, ({ one }) => ({
 }));
 
 export const UserProfiles = pgTable("Profiles", {
-  owner: varchar("owner")
+  owner: uuid("owner")
     .unique()
     .primaryKey()
     .references(() => UserTable.username, {
@@ -80,6 +84,25 @@ export const UserProfiles = pgTable("Profiles", {
 export const ProfileRelations = relations(UserProfiles, ({ one }) => ({
   owner: one(UserTable, {
     fields: [UserProfiles.owner],
+    references: [UserTable.username],
+  }),
+}));
+
+export const UserSessions = pgTable("UserSessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  user: uuid("user")
+    .notNull()
+    .references(() => UserTable.username, {
+      onUpdate: "cascade",
+      onDelete: "cascade",
+    }),
+  lastLogin: timestamp().defaultNow(),
+  cookie: varchar("cookie", { length: 512 }).notNull().default(""),
+});
+
+export const UserSessionsRelations = relations(UserSessions, ({ one }) => ({
+  owner: one(UserTable, {
+    fields: [UserSessions.user],
     references: [UserTable.username],
   }),
 }));
